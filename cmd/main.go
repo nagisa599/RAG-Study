@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -17,7 +18,8 @@ func main() {
 		"私は東京都に住んでいます.",
 		"私はプログラミングが好きです.",
 	}
-	// question = "あなたの名前は何ですか？"
+	question := "あなたの名前は何ですか？"
+    
 
 	client := openai.NewClient(os.Getenv("OPENAIAPIKEY"))
 	
@@ -25,7 +27,7 @@ func main() {
 	if err != nil {
 		fmt.Println("error")
 	}
-	questionVector, err := utils.GetEmbedding(client, []string{"あなたの名前は何ですか？"})
+	questionVector, err := utils.GetEmbedding(client, []string{question})
 	if err != nil {
 		fmt.Println("error")
 	}
@@ -57,4 +59,33 @@ func main() {
 	} else {
 		fmt.Println("No valid similarities found.")
 	}
+	
+	prompt := fmt.Sprintf(`以下の質問に以下の情報をベースにして回答してください。
+	[ユーザの情報]
+	%s
+
+	[情報]
+	%s
+	`, question, document[mostSimilarDocIndex])
+	// prompt := fmt.Sprintf(`以下の質問に以下の情報をベースにして回答してください。
+	// [ユーザの情報]
+	// %s
+
+	// [情報]
+	// %s
+	// `, question, document[0])
+
+
+	gptChatResponse, err := client.CreateCompletion(context.Background(), openai.CompletionRequest{
+		Model:     "gpt-3.5-turbo-instruct", // GPT-3.5-turbo-instructモデルを指定
+		Prompt:    prompt,
+		MaxTokens: 200, // 応答の最大トークン数
+	})
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	// レスポンス出力
+	fmt.Println("Response:", gptChatResponse.Choices[0].Text)
 }

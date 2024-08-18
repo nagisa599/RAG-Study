@@ -12,4 +12,4 @@ EXPOSE 3001
 
 # Airをインストールし、コンテナ起動時に実行する
 RUN go install github.com/air-verse/air@v1.52.3
-CMD ["air", "-c", "./build/.air.toml"]
+CMD ["air", "-c", "./build/.air.toml"]　

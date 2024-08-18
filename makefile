@@ -3,3 +3,7 @@ make build-local:
 
 make up-local:
 	cd ./build && docker compose up
+
+make backend:
+	cd ./build && docker compose exec backend bash
+
